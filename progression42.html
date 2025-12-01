@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet"><style>
+body {
+  font-family: 'Courier Prime', sans-serif;
+  background: transparent;
+  color: #606F49;
+  margin: 0;
+  padding: 40px 20px; /* plus d'espace en haut et en bas */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* cartes alignées en haut */
+  min-height: 100vh;       /* occupe toute la hauteur de la page */
+  position: relative;      /* pour positionner le bouton ⚙️ */
+}
+
+.container {
+  display: flex;
+  gap: 20px;               /* espace entre les cartes */
+  justify-content: center; /* centrer les cartes horizontalement */
+  flex-wrap: wrap;         /* pour que ça reste responsive */
+  margin-top: 60px;        /* espace par rapport au haut du body */
+}
+
+.card {
+  flex: 1 1 300px;   /* carte flexible */
+  max-width: 400px;  /* largeur max */
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(229, 5, 214, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.settings-btn {
+  position: absolute; /* position indépendante */
+  top: 20px;          /* en haut à gauche */
+  left: 20px;
+  cursor: pointer;
+  font-size: 20px;
+  color: #111;
+  z-index: 1000;
+}
+
+.card h2 {
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.deadline-label {
+  font-style: italic;
+  font-size: 10px;
+  color: #C6C09C;
+  margin-bottom: 12px;
+  text-align: center; 
+}
+
+.progress-row {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 12px 0; 
+}
+
+.progress-label {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px; 
+  text-align: center;
+}
+
+.progress-container {
+  position: relative;
+  width: 100%;
+  background: #e0e0e0;
+  border-radius: 8px;
+  height: 28px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.progress-fill {
+  background: #606F49;
+  height: 100%;
+  width: 0%;
+  border-radius: 8px 0 0 8px;
+  transition: width 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 6px;
+  color: #C6C09C;
+  font-style: italic;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.progress-remaining {
+  position: absolute;
+  right: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #C6C09C;
+  pointer-events: none;
+}
+
+/* sliders invisibles pour projets */
+.progress-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.config {
+  display: none;
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+}
+
+.config input {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-top: 4px;
+  margin-bottom: 10px;
+  background: #fff;
+  color: #111;
+}
+
+.config label {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.settings-btn {
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  color: #111;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="settings-btn" id="toggleConfig">⚙️</div>
+
+<div class="config" id="configPanel">
+  <h2>Paramètres Widget 42</h2>
+
+  <label>Date de début (42):</label>
+  <input type="date" id="start42" value="2025-11-03">
+
+  <label>Deadline 42:</label>
+  <input type="date" id="end42" value="2026-11-09">
+
+  <label>Deadline Cercle - début:</label>
+  <input type="date" id="startCercle" value="2025-11-03">
+
+  <label>Deadline Cercle - fin:</label>
+  <input type="date" id="endCercle" value="2025-12-10">
+
+  <label>Total projets Cercle:</label>
+  <input type="number" id="totalProjectsCercle" value="10" min="1">
+
+  <label>Projets terminés Cercle:</label>
+  <input type="number" id="doneProjectsCercle" value="3" min="0">
+
+  <label>Total projets 42:</label>
+  <input type="number" id="totalProjects42" value="50" min="1">
+
+  <label>Projets terminés 42:</label>
+  <input type="number" id="doneProjects42" value="12" min="0">
+</div>
+
+<div class="card">
+  <h2>⏳ DEADLINE 42</h2>
+  <div class="deadline-label" id="label42">—</div>
+
+  <div class="progress-row">
+    <div class="progress-label">Mois restants</div>
+    <div class="progress-container">
+      <div class="progress-fill" id="bar42Months">0</div>
+      <div class="progress-remaining" id="remaining42Months">0</div>
+    </div>
+  </div>
+
+  <div class="progress-row">
+    <div class="progress-label">Semaines restantes</div>
+    <div class="progress-container">
+      <div class="progress-fill" id="bar42Weeks">0</div>
+      <div class="progress-remaining" id="remaining42Weeks">0</div>
+    </div>
+  </div>
+
+  <div class="progress-row">
+    <div class="progress-label">Jours restants</div>
+    <div class="progress-container">
+      <div class="progress-fill" id="bar42Days">0</div>
+      <div class="progress-remaining" id="remaining42Days">0</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>⏳ DEADLINE CERCLE</h2>
+  <div class="deadline-label" id="labelCercle">—</div>
+
+  <div class="progress-row">
+    <div class="progress-label">Jours du cercle</div>
+    <div class="progress-container">
+      <div class="progress-fill" id="barCercleDays">0</div>
+      <div class="progress-remaining" id="remainingCercleDays">0</div>
+    </div>
+  </div>
+
+  <div class="progress-row">
+    <div class="progress-label">Projets du cercle</div>
+    <div class="progress-container" id="containerCercle">
+      <div class="progress-fill" id="barCercleProjects">0</div>
+      <div class="progress-remaining" id="remainingCercleProjects">0</div>
+      <input type="range" min="0" max="10" value="3" id="rangeCercleProjects" class="progress-slider">
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>👩‍💻 PROGRESSION PROJETS</h2>
+
+  <div class="progress-row">
+    <div class="progress-label">Projets total</div>
+    <div class="progress-container" id="containerProjects42">
+      <div class="progress-fill" id="barProjects42">0</div>
+      <div class="progress-remaining" id="remainingProjects42">0</div>
+      <input type="range" min="0" max="50" value="12" id="rangeProjects42" class="progress-slider">
+    </div>
+  </div>
+</div>
+
+<script>
+// Toggle config panel
+const toggleBtn = document.getElementById("toggleConfig");
+const configPanel = document.getElementById("configPanel");
+toggleBtn.addEventListener("click", () => {
+  configPanel.style.display = configPanel.style.display === "none" ? "block" : "none";
+});
+
+// Format date
+function formatDate(d) {
+  const date = new Date(d);
+  const options = { day: '2-digit', month: 'long', year: 'numeric' };
+  return date.toLocaleDateString('fr-FR', options);
+}
+
+// Calcul exact jours, semaines, mois restants
+function remainingDays(start, end) {
+  const now = new Date();
+  const e = new Date(end);
+  return Math.max(0, Math.ceil((e - now)/(1000*60*60*24)));
+}
+
+function remainingWeeks(start, end) {
+  const now = new Date();
+  const e = new Date(end);
+  return Math.max(0, Math.ceil((e - now)/(1000*60*60*24*7)));
+}
+
+function remainingMonths(start, end) {
+  const now = new Date();
+  const e = new Date(end);
+  const s = new Date(start);
+  let months = (e.getFullYear() - now.getFullYear())*12 + (e.getMonth() - now.getMonth());
+  if(e.getDate() < now.getDate()) months -= 1;
+  return Math.max(0, months);
+}
+
+function doneDays(start, end) {
+  const now = new Date();
+  const s = new Date(start);
+  return Math.max(0, Math.ceil((now - s)/(1000*60*60*24)));
+}
+
+function doneWeeks(start, end) {
+  const now = new Date();
+  const s = new Date(start);
+  return Math.max(0, Math.ceil((now - s)/(1000*60*60*24*7)));
+}
+
+function doneMonths(start, end) {
+  const now = new Date();
+  const s = new Date(start);
+  let months = (now.getFullYear() - s.getFullYear())*12 + (now.getMonth() - s.getMonth());
+  if(now.getDate() < s.getDate()) months -= 1;
+  return Math.max(0, months);
+}
+
+function setBar(fillId, remainingId, doneVal, remainingVal){
+  const fill = document.getElementById(fillId);
+  const percent = Math.min(100, Math.round((doneVal/(doneVal+remainingVal))*100));
+  fill.style.width = percent + "%";
+  fill.textContent = doneVal; 
+  document.getElementById(remainingId).textContent = remainingVal; 
+}
+
+function updateBars(){
+  const start42 = document.getElementById("start42").value;
+  const end42 = document.getElementById("end42").value;
+  const startC = document.getElementById("startCercle").value;
+  const endC = document.getElementById("endCercle").value;
+
+  const totalC = Number(document.getElementById("totalProjectsCercle").value);
+  const doneC = Number(document.getElementById("doneProjectsCercle").value);
+
+  const total42 = Number(document.getElementById("totalProjects42").value);
+  const done42 = Number(document.getElementById("doneProjects42").value);
+
+  // DEADLINE 42
+  setBar("bar42Months","remaining42Months", doneMonths(start42,end42), remainingMonths(start42,end42));
+  setBar("bar42Weeks","remaining42Weeks", doneWeeks(start42,end42), remainingWeeks(start42,end42));
+  setBar("bar42Days","remaining42Days", doneDays(start42,end42), remainingDays(start42,end42));
+
+  // DEADLINE CERCLE
+  setBar("barCercleDays","remainingCercleDays", doneDays(startC,endC), remainingDays(startC,endC));
+  setBar("barCercleProjects","remainingCercleProjects", doneC, totalC-doneC);
+
+  // PROGRESSION PROJETS
+  setBar("barProjects42","remainingProjects42", done42, total42-done42);
+
+  // update slider max et valeur
+  const rangeCercle = document.getElementById("rangeCercleProjects");
+  rangeCercle.max = totalC;
+  rangeCercle.value = doneC;
+
+  const range42 = document.getElementById("rangeProjects42");
+  range42.max = total42;
+  range42.value = done42;
+
+  document.getElementById("label42").textContent = "Deadline : " + formatDate(end42);
+  document.getElementById("labelCercle").textContent = "Deadline : " + formatDate(endC);
+}
+
+// Slider interactivity
+document.getElementById("rangeCercleProjects").addEventListener("input", (e)=>{
+  const val = Number(e.target.value);
+  const max = Number(e.target.max);
+  setBar("barCercleProjects","remainingCercleProjects", val, max-val);
+  document.getElementById("doneProjectsCercle").value = val;
+});
+
+document.getElementById("rangeProjects42").addEventListener("input", (e)=>{
+  const val = Number(e.target.value);
+  const max = Number(e.target.max);
+  setBar("barProjects42","remainingProjects42", val, max-val);
+  document.getElementById("doneProjects42").value = val;
+});
+
+// Update on input change
+document.querySelectorAll("input:not(.progress-slider)").forEach(input => {
+  input.addEventListener("input", updateBars);
+});
+
+// Initial update
+updateBars();
+</script>
+
+</div>
+</body>
+</html>
