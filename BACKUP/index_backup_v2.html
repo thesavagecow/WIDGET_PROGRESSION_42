@@ -4,32 +4,31 @@
 <meta charset="UTF-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-<style>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet"><style>
 body {
   font-family: 'Courier Prime', sans-serif;
   background: transparent;
   color: #606F49;
   margin: 0;
-  padding: 10px 0px;
+  padding: 10px 0px; /* plus d'espace en haut et en bas */
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  min-height: 20vh;
-  position: relative;
+  align-items: flex-start; /* cartes alignées en haut */
+  min-height: 20vh;       /* occupe toute la hauteur de la page */
+  position: relative;      /* pour positionner le bouton ⚙️ */
 }
 
 .container {
   display: flex;
-  gap: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: 60px;
+  gap: 20px;               /* espace entre les cartes */
+  justify-content: center; /* centrer les cartes horizontalement */
+  flex-wrap: wrap;         /* pour que ça reste responsive */
+  margin-top: 60px;        /* espace par rapport au haut du body */
 }
 
 .card {
-  flex: 1 1 300px;
-  max-width: 400px;
+  flex: 1 1 300px;   /* carte flexible */
+  max-width: 400px;  /* largeur max */
   background: #f9f9f9;
   padding: 20px;
   border-radius: 12px;
@@ -40,8 +39,8 @@ body {
 }
 
 .settings-btn {
-  position: absolute;
-  top: 20px;
+  position: absolute; /* position indépendante */
+  top: 20px;          /* en haut à gauche */
   left: 20px;
   cursor: pointer;
   font-size: 20px;
@@ -54,7 +53,7 @@ body {
   font-weight: 600;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: center; 
   gap: 8px;
   margin-bottom: 4px;
 }
@@ -64,20 +63,20 @@ body {
   font-size: 10px;
   color: #C6C09C;
   margin-bottom: 12px;
-  text-align: center;
+  text-align: center; 
 }
 
 .progress-row {
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin: 12px 0;
+  margin: 12px 0; 
 }
 
 .progress-label {
   font-size: 13px;
   font-weight: 500;
-  margin-bottom: 4px;
+  margin-bottom: 4px; 
   text-align: center;
 }
 
@@ -117,6 +116,7 @@ body {
   pointer-events: none;
 }
 
+/* sliders invisibles pour projets */
 .progress-slider {
   position: absolute;
   top: 0;
@@ -150,6 +150,15 @@ body {
 .config label {
   font-weight: 500;
   font-size: 14px;
+}
+
+.settings-btn {
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  color: #111;
 }
 </style>
 </head>
@@ -265,7 +274,7 @@ function formatDate(d) {
   return date.toLocaleDateString('fr-FR', options);
 }
 
-// Calculs
+// Calcul exact jours, semaines, mois restants
 function remainingDays(start, end) {
   const now = new Date();
   const e = new Date(end);
@@ -281,6 +290,7 @@ function remainingWeeks(start, end) {
 function remainingMonths(start, end) {
   const now = new Date();
   const e = new Date(end);
+  const s = new Date(start);
   let months = (e.getFullYear() - now.getFullYear())*12 + (e.getMonth() - now.getMonth());
   if(e.getDate() < now.getDate()) months -= 1;
   return Math.max(0, months);
@@ -310,42 +320,9 @@ function setBar(fillId, remainingId, doneVal, remainingVal){
   const fill = document.getElementById(fillId);
   const percent = Math.min(100, Math.round((doneVal/(doneVal+remainingVal))*100));
   fill.style.width = percent + "%";
-  fill.textContent = doneVal;
-  document.getElementById(remainingId).textContent = remainingVal;
+  fill.textContent = doneVal; 
+  document.getElementById(remainingId).textContent = remainingVal; 
 }
-
-// ----------------------
-// LOCAL STORAGE SYSTEM
-// ----------------------
-
-function saveSettings() {
-  const fields = [
-    "start42","end42",
-    "startCercle","endCercle",
-    "totalProjectsCercle","doneProjectsCercle",
-    "totalProjects42","doneProjects42"
-  ];
-  fields.forEach(id=>{
-    localStorage.setItem(id, document.getElementById(id).value);
-  });
-}
-
-function loadSettings() {
-  const fields = [
-    "start42","end42",
-    "startCercle","endCercle",
-    "totalProjectsCercle","doneProjectsCercle",
-    "totalProjects42","doneProjects42"
-  ];
-  fields.forEach(id=>{
-    const saved = localStorage.getItem(id);
-    if(saved !== null){
-      document.getElementById(id).value = saved;
-    }
-  });
-}
-
-// ----------------------
 
 function updateBars(){
   const start42 = document.getElementById("start42").value;
@@ -359,15 +336,19 @@ function updateBars(){
   const total42 = Number(document.getElementById("totalProjects42").value);
   const done42 = Number(document.getElementById("doneProjects42").value);
 
+  // DEADLINE 42
   setBar("bar42Months","remaining42Months", doneMonths(start42,end42), remainingMonths(start42,end42));
   setBar("bar42Weeks","remaining42Weeks", doneWeeks(start42,end42), remainingWeeks(start42,end42));
   setBar("bar42Days","remaining42Days", doneDays(start42,end42), remainingDays(start42,end42));
 
+  // DEADLINE CERCLE
   setBar("barCercleDays","remainingCercleDays", doneDays(startC,endC), remainingDays(startC,endC));
   setBar("barCercleProjects","remainingCercleProjects", doneC, totalC-doneC);
 
+  // PROGRESSION PROJETS
   setBar("barProjects42","remainingProjects42", done42, total42-done42);
 
+  // update slider max et valeur
   const rangeCercle = document.getElementById("rangeCercleProjects");
   rangeCercle.max = totalC;
   rangeCercle.value = doneC;
@@ -380,13 +361,12 @@ function updateBars(){
   document.getElementById("labelCercle").textContent = "Deadline : " + formatDate(endC);
 }
 
-// Sliders
+// Slider interactivity
 document.getElementById("rangeCercleProjects").addEventListener("input", (e)=>{
   const val = Number(e.target.value);
   const max = Number(e.target.max);
   setBar("barCercleProjects","remainingCercleProjects", val, max-val);
   document.getElementById("doneProjectsCercle").value = val;
-  saveSettings();
 });
 
 document.getElementById("rangeProjects42").addEventListener("input", (e)=>{
@@ -394,21 +374,15 @@ document.getElementById("rangeProjects42").addEventListener("input", (e)=>{
   const max = Number(e.target.max);
   setBar("barProjects42","remainingProjects42", val, max-val);
   document.getElementById("doneProjects42").value = val;
-  saveSettings();
 });
 
-// Inputs classiques
+// Update on input change
 document.querySelectorAll("input:not(.progress-slider)").forEach(input => {
-  input.addEventListener("input", () => {
-    updateBars();
-    saveSettings();
-  });
+  input.addEventListener("input", updateBars);
 });
 
-// Load + init
-loadSettings();
+// Initial update
 updateBars();
-
 </script>
 
 </div>
